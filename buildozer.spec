@@ -150,4 +150,4 @@ android.manifest_application_attributes = android:usesCleartextTraffic="true"
 log_level = 2
 
 # (bool) تحذير عند التشغيل كجذر (root)
-warn_on_root = 1
+warn_on_root = 1android.aidl = /usr/local/android-sdk/build-tools/30.0.3/aidl
