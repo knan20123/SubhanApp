@@ -30,8 +30,7 @@ jobs:
 
     - name: 🔨 بناء APK
       run: |
-        buildozer init
-        # تنزيل Android SDK و NDK تلقائياً
+        # buildozer init  # تم التعليق لأن الملف موجود مسبقاً
         buildozer -v android debug
 
     - name: 📤 رفع APK
