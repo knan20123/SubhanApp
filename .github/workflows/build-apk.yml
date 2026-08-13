@@ -23,7 +23,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev --fix-missing
 
-    - name: 🤖 تثبيت Android SDK و Build Tools 33.0.2
+    - name: 🤖 تثبيت Android SDK و Build Tools
       run: |
         cd $HOME
         # تنزيل command line tools
@@ -39,8 +39,8 @@ jobs:
         # الموافقة على التراخيص
         yes | sdkmanager --licenses > /dev/null 2>&1
         
-        # تثبيت المنصات وأدوات البناء (استخدام 33.0.2 بدلاً من 34.0.0)
-        sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+        # تثبيت جميع إصدارات Build Tools (الأمر الجديد)
+        sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0" "build-tools;33.0.1" "build-tools;33.0.2" "build-tools;34.0.0"
 
     - name: 💾 Cache Buildozer
       uses: actions/cache@v4
@@ -66,7 +66,7 @@ jobs:
           chmod +x $ANDROID_SDK_ROOT/build-tools/aidl
           echo "✅ تم نسخ aidl إلى build-tools/"
         else
-          echo "❌ aidl غير موجود في build-tools/33.0.2/"
+          echo "❌ aidl غير موجود، سيتم البحث..."
           find $ANDROID_SDK_ROOT -name "aidl" 2>/dev/null
         fi
         buildozer -v android debug
