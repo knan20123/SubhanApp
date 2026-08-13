@@ -35,6 +35,14 @@ jobs:
         yes | sdkmanager --licenses > /dev/null 2>&1
         sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
+    - name: 💾 Cache Buildozer (للتسريع المستقبلي)
+      uses: actions/cache@v4
+      with:
+        path: ~/.buildozer
+        key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+        restore-keys: |
+          buildozer-${{ runner.os }}-
+
     - name: ⚙️ تثبيت Buildozer
       run: |
         pip install --upgrade pip
