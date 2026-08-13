@@ -23,19 +23,19 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev --fix-missing
 
-    - name: 🤖 تثبيت Android SDK يدوياً
+    - name: 🤖 تثبيت Android SDK و Build Tools
       run: |
         cd $HOME
-        mkdir -p android-sdk/cmdline-tools
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+        mkdir -p android-sdk/cmdline-tools
         unzip -q commandlinetools-linux-9477386_latest.zip -d android-sdk/cmdline-tools
         mv android-sdk/cmdline-tools/cmdline-tools android-sdk/cmdline-tools/latest
         export ANDROID_SDK_ROOT=$HOME/android-sdk
-        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
+        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/34.0.0
         yes | sdkmanager --licenses > /dev/null 2>&1
-        sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+        sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" "build-tools;33.0.2"
 
-    - name: 💾 Cache Buildozer (للتسريع المستقبلي)
+    - name: 💾 Cache Buildozer
       uses: actions/cache@v4
       with:
         path: ~/.buildozer
@@ -51,7 +51,7 @@ jobs:
     - name: 🔨 بناء APK
       run: |
         export ANDROID_SDK_ROOT=$HOME/android-sdk
-        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
+        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/34.0.0
         buildozer -v android debug
 
     - name: 📤 رفع APK
