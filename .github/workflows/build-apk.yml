@@ -23,7 +23,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev --fix-missing
 
-    - name: 🤖 تثبيت Android SDK و Build Tools المحددة
+    - name: 🤖 تثبيت Android SDK مع Build Tools 30.0.3
       run: |
         cd $HOME
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
@@ -33,7 +33,7 @@ jobs:
         export ANDROID_SDK_ROOT=$HOME/android-sdk
         export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
         yes | sdkmanager --licenses > /dev/null 2>&1
-        sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+        sdkmanager "platform-tools" "platforms;android-33" "build-tools;30.0.3"
 
     - name: 💾 Cache Buildozer
       uses: actions/cache@v4
@@ -51,19 +51,24 @@ jobs:
     - name: 🔨 بناء APK (مع مسار aidl المحدد)
       run: |
         export ANDROID_SDK_ROOT=$HOME/android-sdk
-        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/33.0.2
-        # التأكيد على وجود aidl ونسخه
-        if [ -f "$ANDROID_SDK_ROOT/build-tools/33.0.2/aidl" ]; then
-          cp $ANDROID_SDK_ROOT/build-tools/33.0.2/aidl $ANDROID_SDK_ROOT/build-tools/
+        export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/30.0.3
+        # التأكد من وجود aidl
+        if [ -f "$ANDROID_SDK_ROOT/build-tools/30.0.3/aidl" ]; then
+          echo "✅ aidl موجود في build-tools/30.0.3/"
+          # نسخ aidl إلى مكان آمن
+          mkdir -p $ANDROID_SDK_ROOT/build-tools
+          cp $ANDROID_SDK_ROOT/build-tools/30.0.3/aidl $ANDROID_SDK_ROOT/build-tools/
           chmod +x $ANDROID_SDK_ROOT/build-tools/aidl
-          echo "✅ aidl جاهز للاستخدام"
         else
-          echo "❌ لم يتم العثور على aidl، جاري البحث..."
+          echo "❌ aidl غير موجود، جاري البحث..."
           find $ANDROID_SDK_ROOT -name "aidl" 2>/dev/null
           exit 1
         fi
-        # تحديث buildozer.spec بمسار aidl
-        echo "android.aidl = $ANDROID_SDK_ROOT/build-tools/33.0.2/aidl" >> buildozer.spec
+        # إضافة مسار aidl إلى buildozer.spec
+        echo "android.aidl = $ANDROID_SDK_ROOT/build-tools/30.0.3/aidl" >> buildozer.spec
+        # إظهار محتوى buildozer.spec للتأكد
+        cat buildozer.spec | grep -E "android.api|android.minapi|android.ndk|android.aidl"
+        # بناء APK
         buildozer -v android debug
 
     - name: 📤 رفع APK
